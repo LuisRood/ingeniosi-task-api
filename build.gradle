@@ -3,13 +3,18 @@ plugins {
 	id 'org.springframework.boot' version '3.5.14'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.sonarqube' version '7.2.3.7755'
+	id 'jacoco'
 }
-sonar{
+
+sonar {
 	properties {
 		property "sonar.projectKey", "LuisRood_ingeniosi-task-api"
 		property "sonar.organization", "luisrood"
+		// 2. Dile a Sonar dónde va a encontrar el reporte que genera JaCoCo
+		property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
 	}
 }
+
 group = 'com.ingeniosi'
 version = '0.0.1-SNAPSHOT'
 
@@ -37,4 +42,15 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport // 3. Asegura que siempre que corran los tests, se genere el reporte
+}
+
+// 4. Configura la tarea de JaCoCo para forzar la creación del XML
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		csv.required = false
+		html.required = true // Puedes dejarlo en true para abrir el reporte local en tu navegador
+	}
 }
