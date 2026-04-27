@@ -4,6 +4,7 @@ import com.ingeniosi.ingeniosi_task_api.client.PetstoreClient;
 import com.ingeniosi.ingeniosi_task_api.model.CreatePetRequestDto;
 import com.ingeniosi.ingeniosi_task_api.model.CreatePetResponseDto;
 import com.ingeniosi.ingeniosi_task_api.model.PetResponseDto;
+import com.ingeniosi.ingeniosi_task_api.service.impl.PetServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,7 @@ class PetServiceTest {
     private PetstoreClient petstoreClient;
 
     @InjectMocks
-    private PetService petService;
+    private PetServiceImpl petService;
 
     @Test
     void getPetByIdShouldReturnPetFromClient() {
@@ -49,7 +50,8 @@ class PetServiceTest {
 
         assertNotNull(result.getTransactionId());
         assertNotNull(result.getDateCreated());
-        LocalDateTime.parse(result.getDateCreated(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime createdAt = LocalDateTime.parse(result.getDateCreated(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        assertEquals(0, createdAt.getNano());
         assertEquals("available", result.getStatus());
         assertEquals("Firulais", result.getName());
         verify(petstoreClient).createPet(request);
