@@ -1,6 +1,8 @@
 package com.ingeniosi.ingeniosi_task_api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ingeniosi.ingeniosi_task_api.exception.BadRequestException;
+import com.ingeniosi.ingeniosi_task_api.exception.ExternalServiceException;
 import com.ingeniosi.ingeniosi_task_api.exception.ResourceNotFoundException;
 import com.ingeniosi.ingeniosi_task_api.model.CreatePetRequestDto;
 import com.ingeniosi.ingeniosi_task_api.model.CreatePetResponseDto;
@@ -87,6 +89,44 @@ class PetControllerTest {
     }
 
     @Test
+    void getPetByIdShouldReturnBadRequestWhenServiceThrowsBadRequest() throws Exception {
+        Long petId = 0L;
+        when(petService.getPetById(petId)).thenThrow(new BadRequestException("Invalid pet id"));
+
+        mockMvc.perform(get("/api/pet/{petId}", petId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Invalid pet id"))
+                .andExpect(jsonPath("$.path").value("/api/pet/0"));
+    }
+
+    @Test
+    void getPetByIdShouldReturnBadGatewayWhenServiceThrowsExternalService() throws Exception {
+        Long petId = 10L;
+        when(petService.getPetById(petId)).thenThrow(new ExternalServiceException("Petstore unavailable", new RuntimeException("timeout")));
+
+        mockMvc.perform(get("/api/pet/{petId}", petId))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.status").value(502))
+                .andExpect(jsonPath("$.error").value("Bad Gateway"))
+                .andExpect(jsonPath("$.message").value("Petstore unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/pet/10"));
+    }
+
+    @Test
+    void getPetByIdShouldReturnBadRequestWhenPathVariableIsInvalidType() throws Exception {
+        mockMvc.perform(get("/api/pet/{petId}", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Invalid value 'abc' for parameter 'petId'"))
+                .andExpect(jsonPath("$.path").value("/api/pet/abc"));
+
+        verifyNoInteractions(petService);
+    }
+
+    @Test
     void createPetShouldReturnBadRequestWhenValidationFails() throws Exception {
         Map<String, Object> invalidRequest = Map.of(
                 "id", -3,
@@ -105,5 +145,32 @@ class PetControllerTest {
                 .andExpect(jsonPath("$.details").isArray());
 
         verifyNoInteractions(petService);
+    }
+
+    @Test
+    void createPetShouldReturnBadRequestWhenJsonIsMalformed() throws Exception {
+        mockMvc.perform(post("/api/pet")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"id\":1,\"status\":\"available\",\"name\":"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+                .andExpect(jsonPath("$.path").value("/api/pet"));
+
+        verifyNoInteractions(petService);
+    }
+
+    @Test
+    void getPetByIdShouldReturnInternalServerErrorWhenServiceThrowsUnexpectedException() throws Exception {
+        Long petId = 77L;
+        when(petService.getPetById(petId)).thenThrow(new RuntimeException("Unexpected issue"));
+
+        mockMvc.perform(get("/api/pet/{petId}", petId))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.error").value("Internal Server Error"))
+                .andExpect(jsonPath("$.message").value("Internal server error"))
+                .andExpect(jsonPath("$.path").value("/api/pet/77"));
     }
 }
