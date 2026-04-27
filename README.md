@@ -17,14 +17,14 @@ API en Spring Boot que consume la API externa de Swagger Petstore para:
 - JDK 17
 - Gradle Wrapper (incluido en el repo)
 
-## ConfiguraciÛn
+## Configuraci√≥n
 Archivo: `src/main/resources/application.properties`
 
 Propiedades principales:
 - `server.port=8080`
 - `petstore.base-url=https://petstore.swagger.io/v2`
 
-## EjecuciÛn local
+## Ejecuci√≥n local
 ```bash
 ./gradlew bootRun
 ```
@@ -34,8 +34,8 @@ En Windows (PowerShell):
 .\gradlew.bat bootRun
 ```
 
-## DocumentaciÛn API
-Con la aplicaciÛn levantada:
+## Documentaci√≥n API
+Con la aplicaci√≥n levantada:
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
@@ -77,11 +77,11 @@ Respuesta esperada:
 ## Validaciones
 `CreatePetRequestDto` aplica:
 - `id`: requerido y mayor a 0.
-- `status`: requerido y no vacÌo.
-- `name`: requerido y no vacÌo.
+- `status`: requerido y no vac√≠o.
+- `name`: requerido y no vac√≠o.
 
 ## Manejo de errores
-Se manejan errores de negocio y tÈcnicos con `GlobalExceptionHandler`.
+Se manejan errores de negocio y t√©cnicos con `GlobalExceptionHandler`.
 
 Formato de error:
 ```json
@@ -98,7 +98,7 @@ Formato de error:
 ```
 
 Mapeo principal:
-- `400`: validaciÛn, JSON malformado, par·metros inv·lidos o `BadRequestException`.
+- `400`: validaci√≥n, JSON malformado, par√°metros inv√°lidos o `BadRequestException`.
 - `404`: `ResourceNotFoundException`.
 - `502`: `ExternalServiceException` (fallas/errores inesperados de Petstore).
 - `500`: error no controlado.
@@ -119,7 +119,7 @@ Cobertura implementada:
 - `PetServiceTest`
 - `PetControllerTest`
 
-## Calidad de cÛdigo
-Se agregÛ configuraciÛn de SonarQube en `build.gradle` (`org.sonarqube`), con:
+## Calidad de c√≥digo
+Se agreg√≥ configuraci√≥n de SonarQube en `build.gradle` (`org.sonarqube`), con:
 - `sonar.projectKey = LuisRood_ingeniosi-task-api`
 - `sonar.organization = luisrood`

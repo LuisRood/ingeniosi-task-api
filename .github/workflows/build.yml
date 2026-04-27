@@ -56,6 +56,7 @@ jobs:
         run: ./gradlew build --info
 
       - name: Sonar analysis
+        if: ${{ secrets.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew sonar --info
